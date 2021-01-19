@@ -56,7 +56,7 @@ CREATE TABLE `single_record`
     `essid4`       VARCHAR(100)                         DEFAULT NULL COMMENT '',
     `essid5`       VARCHAR(100)                         DEFAULT NULL COMMENT '',
     `essid6`       VARCHAR(100)                         DEFAULT NULL COMMENT '',
-    `range`        DOUBLE                               DEFAULT NULL COMMENT '',
+    `distance`     DOUBLE                               DEFAULT NULL COMMENT '',
     INDEX idx_mac (mac),
     PRIMARY KEY pk_id (`id`)
 ) ENGINE = InnoDB
