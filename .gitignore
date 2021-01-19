@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### ignore ###
+### 自动生成的代码等 ###
+tools/database/mapper
+tools/database/java
+tools/database/sql
+tools/database/utils/__pycache__
