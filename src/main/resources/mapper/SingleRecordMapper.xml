@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cc.kinami.wp.dao.SingleRecordDAO">
+    <resultMap type="cc.kinami.wp.model.po.SingleRecordPO" id="singleRecordResultMap">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime"/>
+        <result column="mac" jdbcType="VARCHAR" property="mac"/>
+        <result column="router" jdbcType="VARCHAR" property="router"/>
+        <result column="rssi" jdbcType="INTEGER" property="rssi"/>
+        <result column="rssi1" jdbcType="INTEGER" property="rssi1"/>
+        <result column="rssi2" jdbcType="INTEGER" property="rssi2"/>
+        <result column="rssi3" jdbcType="INTEGER" property="rssi3"/>
+        <result column="rssi4" jdbcType="INTEGER" property="rssi4"/>
+        <result column="tar_ssid" jdbcType="VARCHAR" property="tarSsid"/>
+        <result column="tar_mac" jdbcType="VARCHAR" property="tarMac"/>
+        <result column="is_connected" jdbcType="BOOLEAN" property="connected"/>
+        <result column="is_sleeping" jdbcType="BOOLEAN" property="sleeping"/>
+        <result column="essid0" jdbcType="VARCHAR" property="essid0"/>
+        <result column="essid1" jdbcType="VARCHAR" property="essid1"/>
+        <result column="essid2" jdbcType="VARCHAR" property="essid2"/>
+        <result column="essid3" jdbcType="VARCHAR" property="essid3"/>
+        <result column="essid4" jdbcType="VARCHAR" property="essid4"/>
+        <result column="essid5" jdbcType="VARCHAR" property="essid5"/>
+        <result column="essid6" jdbcType="VARCHAR" property="essid6"/>
+        <result column="distance" jdbcType="DOUBLE" property="distance"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="cc.kinami.wp.model.po.SingleRecordPO" useGeneratedKeys="true"
+            keyColumn="id" keyProperty="id">
+        insert into single_record(mac, router, rssi, rssi1, rssi2, rssi3, rssi4, tar_ssid, tar_mac, is_connected,
+                                  is_sleeping, essid0, essid1, essid2, essid3, essid4, essid5, essid6, distance)
+        values (#{singleRecord.mac}, #{singleRecord.router}, #{singleRecord.rssi}, #{singleRecord.rssi1},
+                #{singleRecord.rssi2}, #{singleRecord.rssi3}, #{singleRecord.rssi4}, #{singleRecord.tarSsid},
+                #{singleRecord.tarMac}, #{singleRecord.connected}, #{singleRecord.sleeping},
+                #{singleRecord.essid0}, #{singleRecord.essid1}, #{singleRecord.essid2}, #{singleRecord.essid3},
+                #{singleRecord.essid4}, #{singleRecord.essid5}, #{singleRecord.essid6}, #{singleRecord.distance})
+    </insert>
+
+</mapper>
