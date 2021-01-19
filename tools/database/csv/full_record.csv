@@ -5,6 +5,6 @@ updated_time,datetime(6),NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT
 mid,varchar(20),DEFAULT NULL,嗅探设备id,,,,
 mmac,varchar(20),DEFAULT NULL,设备mac,,,,
 rate,varchar(10),DEFAULT NULL,发送频率,,,,
-time,varchar(40),DEFAULT NULL,时间戳,,,,
+time,datetime,DEFAULT NULL,时间戳,,,,
 lat,double,DEFAULT NULL,纬度,,,,
 lon,double,DEFAULT NULL,经度,,,,

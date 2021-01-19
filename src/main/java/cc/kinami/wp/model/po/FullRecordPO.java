@@ -19,7 +19,7 @@ public class FullRecordPO {
     private String mid;
     private String mmac;
     private String rate;
-    private String time;
+    private Timestamp time;
     private Double lat;
     private Double lon;
 }
