@@ -53,7 +53,7 @@ def init_sql_file():
 
 def complite_sql_file():
     sql_file = open("sql/init.sql", 'a', encoding="utf-8")
-    
+
     sql_file.close()
 
 
@@ -101,7 +101,8 @@ def csv2sql(srcdir, filename):
     for u_idx in unique_indexes:
         sql_file.write(',\n    UNIQUE {}({})'.format('uk_' + u_idx, u_idx))
     # 写入主键索引
-    sql_file.write(',\n    PRIMARY KEY pk_id(`id`)')
+    for pk_idx in primary_indexes:
+        sql_file.write(',\n    PRIMARY KEY pk_{0}(`{0}`)'.format(pk_idx))
     # 写入尾部信息
     sql_file.write(
         '\n' +
