@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="cc.kinami.wp.dao.SingleRecordDAO">
+<mapper namespace="cc.kinami.wp.dao.RecordDAO">
+    <resultMap type="cc.kinami.wp.model.po.FullRecordPO" id="fullRecordResultMap">
+        <result column="id" jdbcType="INTEGER" property="id"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime"/>
+        <result column="mid" jdbcType="VARCHAR" property="mid"/>
+        <result column="mmac" jdbcType="VARCHAR" property="mmac"/>
+        <result column="rate" jdbcType="VARCHAR" property="rate"/>
+        <result column="time" jdbcType="TIMESTAMP" property="time"/>
+        <result column="lat" jdbcType="DOUBLE" property="lat"/>
+        <result column="lon" jdbcType="DOUBLE" property="lon"/>
+    </resultMap>
+
     <resultMap type="cc.kinami.wp.model.po.SingleRecordPO" id="singleRecordResultMap">
         <result column="id" jdbcType="INTEGER" property="id"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
@@ -27,7 +39,7 @@
         <result column="distance" jdbcType="DOUBLE" property="distance"/>
     </resultMap>
 
-    <insert id="insert" parameterType="cc.kinami.wp.model.po.SingleRecordPO" useGeneratedKeys="true"
+    <insert id="insertSingleRecord" parameterType="cc.kinami.wp.model.po.SingleRecordPO" useGeneratedKeys="true"
             keyColumn="id" keyProperty="id">
         insert into single_record(mac, router, rssi, rssi1, rssi2, rssi3, rssi4, tar_ssid, tar_mac, is_connected,
                                   is_sleeping, essid0, essid1, essid2, essid3, essid4, essid5, essid6, distance)
@@ -36,6 +48,18 @@
                 #{singleRecord.tarMac}, #{singleRecord.connected}, #{singleRecord.sleeping},
                 #{singleRecord.essid0}, #{singleRecord.essid1}, #{singleRecord.essid2}, #{singleRecord.essid3},
                 #{singleRecord.essid4}, #{singleRecord.essid5}, #{singleRecord.essid6}, #{singleRecord.distance})
+    </insert>
+
+    <insert id="insertFullRecord" parameterType="cc.kinami.wp.model.po.FullRecordPO" useGeneratedKeys="true"
+            keyColumn="id" keyProperty="id">
+        insert into full_record(mid, mmac, rate, time, lat, lon)
+        values (#{fullRecord.mid}, #{fullRecord.mmac}, #{fullRecord.rate}, #{fullRecord.time}, #{fullRecord.lat},
+                #{fullRecord.lon})
+    </insert>
+
+    <insert id="insertRecordRelation" parameterType="int">
+        insert into r_full_single(full_id, single_id)
+        values (#{fullID}, #{singleID})
     </insert>
 
 </mapper>
