@@ -1,13 +1,15 @@
 package cc.kinami.wp.service.impl;
 
-import cc.kinami.wp.dao.SingleRecordDAO;
+import cc.kinami.wp.dao.RecordDAO;
 import cc.kinami.wp.model.dto.PostDTO;
+import cc.kinami.wp.model.po.FullRecordPO;
 import cc.kinami.wp.model.po.SingleRecordPO;
 import cc.kinami.wp.model.pojo.SingleData;
 import cc.kinami.wp.service.DataService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -17,15 +19,35 @@ import java.util.Locale;
 @AllArgsConstructor
 public class DataServiceImpl implements DataService {
 
-    SingleRecordDAO singleRecordDAO;
+    RecordDAO recordDAO;
 
     @Override
     public void processData(PostDTO postDTO) {
+        // 返回值判断
+        int returnValue;
+        // 解析日期格式
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EE MMM dd HH:mm:ss yyyy", Locale.US);
         LocalDateTime localDateTime = LocalDateTime.parse(postDTO.getTime(), dateTimeFormatter);
-        System.out.println(localDateTime.toString());
+        // System.out.println(localDateTime.toString());
+        // 计算时间戳秒数
         long seconds = localDateTime.toEpochSecond(ZoneOffset.ofHours(8));
-        System.out.println(seconds);
+        // System.out.println(seconds);
+        // 插入full record
+        FullRecordPO fullRecordPO;
+        fullRecordPO = FullRecordPO.builder()
+                .time(new Timestamp(seconds * 1000))
+                .rate(postDTO.getRate())
+                .lon(postDTO.getLon())
+                .lat(postDTO.getLat())
+                .mmac(postDTO.getMmac())
+                .mid(postDTO.getId())
+                .build();
+        returnValue = recordDAO.insertFullRecord(fullRecordPO);
+        if (returnValue != 1)
+            System.out.println("sth wrong!");
+        int fullRecordID = fullRecordPO.getId();
+
+        // 插入single record
         for (SingleData singleData : postDTO.getData()) {
             SingleRecordPO singleRecordPO;
             singleRecordPO = SingleRecordPO.builder()
@@ -47,11 +69,14 @@ public class DataServiceImpl implements DataService {
                     .distance(singleData.getRange())
                     .router(singleData.getRouter())
                     .build();
-            if(singleData.getDs() != null)
+            if (singleData.getDs() != null)
                 singleRecordPO.setSleeping(singleData.getDs().equals("Y") ? Boolean.TRUE : Boolean.FALSE);
-            if(singleData.getTc() != null)
+            if (singleData.getTc() != null)
                 singleRecordPO.setConnected(singleData.getTc().equals("Y") ? Boolean.TRUE : Boolean.FALSE);
-            singleRecordDAO.insert(singleRecordPO);
+            recordDAO.insertSingleRecord(singleRecordPO);
+            int singleRecordID = singleRecordPO.getId();
+            // 添加关系记录
+            recordDAO.insertRecordRelation(fullRecordID, singleRecordID);
         }
     }
 }
