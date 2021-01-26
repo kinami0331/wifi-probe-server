@@ -2,6 +2,8 @@ package cc.kinami.wp.controller;
 
 import cc.kinami.wp.model.dto.PostDTO;
 import cc.kinami.wp.service.DataService;
+import cc.kinami.wp.websocket.MacDetectWebSocket;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -22,15 +24,17 @@ public class DataController {
     private final DataService dataService;
 
     @RequestMapping(value = "/data", method = RequestMethod.POST)
-    public void getPostData(@RequestParam("data")String oriData){
-        System.out.println(oriData);
+    public void getPostData(@RequestParam("data") String oriData) {
+        // System.out.println(oriData);
         ObjectMapper objectMapper = new ObjectMapper();
+        PostDTO postDTO = null;
         try {
-            PostDTO postDTO = objectMapper.readValue(oriData, PostDTO.class);
-            System.out.println(postDTO.toString());
+            postDTO = objectMapper.readValue(oriData, PostDTO.class);
+            // System.out.println(postDTO.toString());
             dataService.processData(postDTO);
-        }
-        catch (Exception e){
+        } catch (JsonMappingException e) {
+            System.out.println(oriData);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

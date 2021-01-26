@@ -6,6 +6,7 @@ import cc.kinami.wp.model.po.FullRecordPO;
 import cc.kinami.wp.model.po.SingleRecordPO;
 import cc.kinami.wp.model.pojo.SingleData;
 import cc.kinami.wp.service.DataService;
+import cc.kinami.wp.websocket.MacDetectWebSocket;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -49,6 +50,7 @@ public class DataServiceImpl implements DataService {
 
         // 插入single record
         for (SingleData singleData : postDTO.getData()) {
+            // 构建singleRecordPO
             SingleRecordPO singleRecordPO;
             singleRecordPO = SingleRecordPO.builder()
                     .mac(singleData.getMac())
@@ -77,6 +79,9 @@ public class DataServiceImpl implements DataService {
             int singleRecordID = singleRecordPO.getId();
             // 添加关系记录
             recordDAO.insertRecordRelation(fullRecordID, singleRecordID);
+            MacDetectWebSocket.sendMacDetectionInfo(singleData.getMac(),
+                    "[" + fullRecordPO.getTime().toString() + "] " + singleData.toString());
         }
     }
+
 }
