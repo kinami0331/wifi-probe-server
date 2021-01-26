@@ -80,8 +80,37 @@ public class DataServiceImpl implements DataService {
             // 添加关系记录
             recordDAO.insertRecordRelation(fullRecordID, singleRecordID);
             MacDetectWebSocket.sendMacDetectionInfo(singleData.getMac(),
-                    "[" + fullRecordPO.getTime().toString() + "] " + singleData.toString());
+                    generateMessage(fullRecordPO, singleRecordPO));
         }
+    }
+
+    private String generateMessage(FullRecordPO fullRecordPO, SingleRecordPO singleRecordPO) {
+        String msg = "";
+        msg += "检测到一条动态！<br/>";
+        msg += "嗅探设备信息：<br/>";
+        msg += "&emsp;&emsp;嗅探设备id： " + fullRecordPO.getMid() + "<br/>";
+        msg += "&emsp;&emsp;嗅探设备记录时间： " + fullRecordPO.getTime().toString() + "<br/>";
+        msg += "目标设备信息：<br/>";
+        msg += "&emsp;&emsp;mac： " + singleRecordPO.getMac() + "<br/>";
+        msg += "&emsp;&emsp;rssi： " + singleRecordPO.getRssi().toString() + "<br/>";
+        msg += "&emsp;&emsp;range： " + singleRecordPO.getDistance().toString() + "<br/>";
+        if (singleRecordPO.getRouter() != null)
+            msg += "&emsp;&emsp;router： " + singleRecordPO.getRouter() + "<br/>";
+        if (singleRecordPO.getTarSsid() != null)
+            msg += "&emsp;&emsp;tar_ssid： " + singleRecordPO.getTarSsid() + "<br/>";
+        if (singleRecordPO.getTarMac() != null)
+            msg += "&emsp;&emsp;tar_mac： " + singleRecordPO.getTarMac() + "<br/>";
+        if (singleRecordPO.getConnected() != null)
+            msg += "&emsp;&emsp;is_connect： " + singleRecordPO.getConnected().toString() + "<br/>";
+        if (singleRecordPO.getSleeping() != null)
+            msg += "&emsp;&emsp;is_sleeping： " + singleRecordPO.getSleeping().toString() + "<br/>";
+        if (singleRecordPO.getEssid0() != null)
+            msg += "&emsp;&emsp;essid0： " + singleRecordPO.getEssid0() + "<br/>";
+        if (singleRecordPO.getEssid1() != null)
+            msg += "&emsp;&emsp;essid1： " + singleRecordPO.getEssid1() + "<br/>";
+        if (singleRecordPO.getEssid2() != null)
+            msg += "&emsp;&emsp;essid2： " + singleRecordPO.getEssid2() + "<br/>";
+        return msg;
     }
 
 }
