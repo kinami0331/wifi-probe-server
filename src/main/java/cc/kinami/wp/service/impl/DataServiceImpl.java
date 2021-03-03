@@ -1,12 +1,16 @@
 package cc.kinami.wp.service.impl;
 
 import cc.kinami.wp.dao.RecordDAO;
+import cc.kinami.wp.dao.co.SelectRecordCO;
 import cc.kinami.wp.model.dto.PostDTO;
+import cc.kinami.wp.model.po.AbstractRecordPO;
 import cc.kinami.wp.model.po.FullRecordPO;
 import cc.kinami.wp.model.po.SingleRecordPO;
 import cc.kinami.wp.model.pojo.SingleData;
 import cc.kinami.wp.service.DataService;
+import cc.kinami.wp.websocket.MacDetectCsvWebSocket;
 import cc.kinami.wp.websocket.MacDetectWebSocket;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +18,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -28,7 +33,14 @@ public class DataServiceImpl implements DataService {
         int returnValue;
         // 解析日期格式
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("EE MMM dd HH:mm:ss yyyy", Locale.US);
-        LocalDateTime localDateTime = LocalDateTime.parse(postDTO.getTime(), dateTimeFormatter);
+        String postTime = postDTO.getTime();
+        if (postTime.charAt(8) == ' ') {
+            // System.out.println("时间有问题：" + postTime);
+            StringBuilder strBuilder = new StringBuilder(postTime);
+            strBuilder.setCharAt(8, '0');
+            postTime = strBuilder.toString();
+        }
+        LocalDateTime localDateTime = LocalDateTime.parse(postTime, dateTimeFormatter);
         // System.out.println(localDateTime.toString());
         // 计算时间戳秒数
         long seconds = localDateTime.toEpochSecond(ZoneOffset.ofHours(8));
@@ -48,6 +60,7 @@ public class DataServiceImpl implements DataService {
             System.out.println("sth wrong!");
         int fullRecordID = fullRecordPO.getId();
 
+        SingleRecordPO tarSingleRecordPO = null;
         // 插入single record
         for (SingleData singleData : postDTO.getData()) {
             // 构建singleRecordPO
@@ -79,37 +92,62 @@ public class DataServiceImpl implements DataService {
             int singleRecordID = singleRecordPO.getId();
             // 添加关系记录
             recordDAO.insertRecordRelation(fullRecordID, singleRecordID);
+
             MacDetectWebSocket.sendMacDetectionInfo(singleData.getMac(),
                     generateMessage(fullRecordPO, singleRecordPO));
+
+            if (singleData.getMac().equals("30:57:14:09:37:79"))
+                tarSingleRecordPO = singleRecordPO;
         }
+        MacDetectCsvWebSocket.sendMacDetectionInfo("30:57:14:09:37:79",
+                generateCsvMessage(fullRecordPO, tarSingleRecordPO));
+    }
+
+    @Override
+    public List<AbstractRecordPO> queryAbstractRecord(SelectRecordCO selectRecordCO) {
+        System.out.println(selectRecordCO);
+        List<AbstractRecordPO> abstractRecordPOList = recordDAO.listAbstractRecordList(selectRecordCO);
+        System.out.println(abstractRecordPOList.size());
+        return abstractRecordPOList;
     }
 
     private String generateMessage(FullRecordPO fullRecordPO, SingleRecordPO singleRecordPO) {
+        AbstractRecordPO abstractRecordPO = AbstractRecordPO.builder()
+                .mid(fullRecordPO.getMid())
+                .mmac(fullRecordPO.getMmac())
+                .time(fullRecordPO.getTime().toString())
+                .mac(singleRecordPO.getMac())
+                .router(singleRecordPO.getRouter())
+                .rssi(singleRecordPO.getRssi())
+                .tarSsid(singleRecordPO.getTarSsid())
+                .tarMac(singleRecordPO.getTarMac())
+                .connected(singleRecordPO.getConnected())
+                .sleeping(singleRecordPO.getSleeping())
+                .distance(singleRecordPO.getDistance())
+                .build();
+        try {
+            String msg = new ObjectMapper().writeValueAsString(abstractRecordPO);
+            // System.out.println(msg);
+            return msg;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private String generateCsvMessage(FullRecordPO fullRecordPO, SingleRecordPO singleRecordPO) {
         String msg = "";
-        msg += "检测到一条动态！<br/>";
-        msg += "嗅探设备信息：<br/>";
-        msg += "&emsp;&emsp;嗅探设备id： " + fullRecordPO.getMid() + "<br/>";
-        msg += "&emsp;&emsp;嗅探设备记录时间： " + fullRecordPO.getTime().toString() + "<br/>";
-        msg += "目标设备信息：<br/>";
-        msg += "&emsp;&emsp;mac： " + singleRecordPO.getMac() + "<br/>";
-        msg += "&emsp;&emsp;rssi： " + singleRecordPO.getRssi().toString() + "<br/>";
-        msg += "&emsp;&emsp;range： " + singleRecordPO.getDistance().toString() + "<br/>";
-        if (singleRecordPO.getRouter() != null)
-            msg += "&emsp;&emsp;router： " + singleRecordPO.getRouter() + "<br/>";
-        if (singleRecordPO.getTarSsid() != null)
-            msg += "&emsp;&emsp;tar_ssid： " + singleRecordPO.getTarSsid() + "<br/>";
-        if (singleRecordPO.getTarMac() != null)
-            msg += "&emsp;&emsp;tar_mac： " + singleRecordPO.getTarMac() + "<br/>";
-        if (singleRecordPO.getConnected() != null)
-            msg += "&emsp;&emsp;is_connect： " + singleRecordPO.getConnected().toString() + "<br/>";
-        if (singleRecordPO.getSleeping() != null)
-            msg += "&emsp;&emsp;is_sleeping： " + singleRecordPO.getSleeping().toString() + "<br/>";
-        if (singleRecordPO.getEssid0() != null)
-            msg += "&emsp;&emsp;essid0： " + singleRecordPO.getEssid0() + "<br/>";
-        if (singleRecordPO.getEssid1() != null)
-            msg += "&emsp;&emsp;essid1： " + singleRecordPO.getEssid1() + "<br/>";
-        if (singleRecordPO.getEssid2() != null)
-            msg += "&emsp;&emsp;essid2： " + singleRecordPO.getEssid2() + "<br/>";
+        // 时间
+        msg += fullRecordPO.getTime().toString() + ",";
+        if (singleRecordPO == null) {
+            msg += "0,,<br/>";
+        } else {
+            msg += "1,";
+            msg += singleRecordPO.getRssi().toString() + ",";
+            msg += singleRecordPO.getDistance().toString() + "<br/>";
+
+        }
         return msg;
     }
 

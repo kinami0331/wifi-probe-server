@@ -8,7 +8,8 @@
 
 <body>
     探测特定Mac地址设备的状态<br />
-    <input id="mac" type="text" value="de:a4:46:8c:0c:35"/>
+    <!-- <input id="mac" type="text" value="de:a4:46:8c:0c:35"/> -->
+    <input id="mac" type="text" value="30:57:14:09:37:79"/>
     <button onclick="createWebSocket()">创建链接</button>
     <!-- <button onclick="send()">发送</button> -->
     <button onclick="closeWebSocket()">关闭连接</button>
@@ -22,7 +23,7 @@
     var websocket = null;
 
     function createWebSocket() {
-        var host = 'ws://192.168.100.233:5000/websocket/mac-detect';
+        var host = 'ws://localhost:5000/websocket/mac-detect';
         // if (window.location.protocol == 'http:') {
         //     host = 'ws://localhost:5000/websocket/mac-detect';
         // } else {
@@ -30,9 +31,9 @@
         // }
         //判断当前浏览器是否支持WebSocket
         var mac = document.getElementById('mac').value;
-        
+
         tar_host = host + "/" + mac
-        
+
         console.log(tar_host);
 
         if (websocket != null)
@@ -46,8 +47,8 @@
             alert("该浏览器不支持WebSocket！");
             //        return;
         }
-        
-        
+
+
 
         //连接发生错误的回调方法
         websocket.onerror = function () {

@@ -39,6 +39,20 @@
         <result column="distance" jdbcType="DOUBLE" property="distance"/>
     </resultMap>
 
+    <resultMap type="cc.kinami.wp.model.po.AbstractRecordPO" id="abstractRecordResultMap">
+        <result column="mid" jdbcType="VARCHAR" property="mid"/>
+        <result column="mmac" jdbcType="VARCHAR" property="mmac"/>
+        <result column="time" jdbcType="TIMESTAMP" property="time"/>
+        <result column="mac" jdbcType="VARCHAR" property="mac"/>
+        <result column="router" jdbcType="VARCHAR" property="router"/>
+        <result column="rssi" jdbcType="INTEGER" property="rssi"/>
+        <result column="tar_ssid" jdbcType="VARCHAR" property="tarSsid"/>
+        <result column="tar_mac" jdbcType="VARCHAR" property="tarMac"/>
+        <result column="is_connected" jdbcType="BOOLEAN" property="connected"/>
+        <result column="is_sleeping" jdbcType="BOOLEAN" property="sleeping"/>
+        <result column="distance" jdbcType="DOUBLE" property="distance"/>
+    </resultMap>
+
     <insert id="insertSingleRecord" parameterType="cc.kinami.wp.model.po.SingleRecordPO" useGeneratedKeys="true"
             keyColumn="id" keyProperty="id">
         insert into single_record(mac, router, rssi, rssi1, rssi2, rssi3, rssi4, tar_ssid, tar_mac, is_connected,
@@ -62,4 +76,39 @@
         values (#{fullID}, #{singleID})
     </insert>
 
+    <select id="listAbstractRecordList" parameterType="cc.kinami.wp.dao.co.SelectRecordCO"
+            resultMap="abstractRecordResultMap">
+        select mid,
+        mmac,
+        time,
+        mac,
+        router,
+        rssi,
+        tar_mac,
+        tar_ssid,
+        is_connected,
+        is_sleeping,
+        distance
+        from full_record f
+        left join r_full_single r on f.id = r.full_id
+        left join single_record s on r.single_id = s.id
+        <where>
+            <if test="condition.beginTime != null">
+                time >= #{condition.beginTime}
+            </if>
+            <if test="condition.endTime != null">
+                and time &lt;= #{condition.endTime}
+            </if>
+            <if test="condition.mid != null">
+                and mid = #{condition.mid}
+            </if>
+            <if test="condition.mac != null">
+                and mac = #{condition.mac}
+            </if>
+            <if test="condition.tarSsid != null">
+                and tar_ssid = #{condition.tarSsid}
+            </if>
+        </where>
+        limit 9999;
+    </select>
 </mapper>
