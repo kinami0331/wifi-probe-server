@@ -80,7 +80,7 @@
             resultMap="abstractRecordResultMap">
         select mid,
         mmac,
-        time,
+        f.create_time time,
         mac,
         router,
         rssi,
@@ -94,10 +94,10 @@
         left join single_record s on r.single_id = s.id
         <where>
             <if test="condition.beginTime != null">
-                time >= #{condition.beginTime}
+                f.create_time >= #{condition.beginTime}
             </if>
             <if test="condition.endTime != null">
-                and time &lt;= #{condition.endTime}
+                and f.create_time &lt;= #{condition.endTime}
             </if>
             <if test="condition.mid != null">
                 and mid = #{condition.mid}
